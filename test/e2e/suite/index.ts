@@ -8,12 +8,13 @@ export function run(): Promise<void> {
   const mocha = new Mocha({
     ui: "tdd",
     color: true,
+    timeout: 500000,
   });
 
   const testsRoot = path.resolve(__dirname, "..");
 
   return new Promise((c, e) => {
-    glob("e2e/**/**.test.js", { cwd: testsRoot }, (err, files) => {
+    glob("**/**.test.js", { cwd: testsRoot }, (err, files) => {
       if (err) {
         return e(err);
       }

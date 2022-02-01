@@ -10,14 +10,19 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:racket-helpers.helloWorld"
+    "onCommand:racket-helpers.expandSelection",
+    "onCommand:racket-helpers.hoistExpression"
   ],
-  "main": "./out/extension.js",
+  "main": "./out/src/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "racket-helpers.helloWorld",
-        "title": "Hello World"
+        "command": "racket-helpers.expandSelection",
+        "title": "Expand Selection to Parent S-expression"
+      },
+      {
+        "command": "racket-helpers.hoistExpression",
+        "title": "Hoist S-expression"
       }
     ]
   },
@@ -26,23 +31,23 @@
     "build": "rm -rf ./out && tsc",
     "lint": "eslint --ext .ts .",
     "lint:markdown": "remark .",
-    "test": "jest && npm run build && node ./out/test/e2e/runTest.js"
+    "test": "npm run build && node ./out/test/e2e/runTest.js"
   },
   "devDependencies": {
     "@commitlint/cli": "^16.1.0",
     "@commitlint/config-conventional": "^16.0.0",
+    "@types/chai": "^4.3.0",
     "@types/glob": "^7.2.0",
-    "@types/jest": "^27.4.0",
     "@types/mocha": "^9.0.0",
     "@types/node": "14.x",
     "@types/vscode": "^1.63.0",
     "@typescript-eslint/eslint-plugin": "^5.9.1",
     "@typescript-eslint/parser": "^5.9.1",
     "@vscode/test-electron": "^2.0.3",
+    "chai": "^4.3.6",
     "eslint": "^8.6.0",
     "eslint-plugin-import": "^2.25.4",
     "glob": "^7.2.0",
-    "jest": "^27.4.7",
     "lint-staged": "^12.3.2",
     "mocha": "^9.1.3",
     "prettier": "^2.5.1",
@@ -52,7 +57,6 @@
     "remark-preset-lint-recommended": "^6.1.2",
     "simple-git-hooks": "^2.7.0",
     "standard-version": "^9.3.2",
-    "ts-jest": "^27.1.3",
     "typescript": "^4.5.4"
   }
 }
