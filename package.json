@@ -4,7 +4,7 @@
   "description": "Some helpers for working with Racket",
   "icon": "readme-assets/icon.png",
   "publisher": "Calvin-LL",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": "AGPL-3.0",
   "engines": {
     "vscode": "^1.63.0"
