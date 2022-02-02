@@ -2,6 +2,7 @@
   "name": "racket-helpers",
   "displayName": "Racket Helpers",
   "description": "Some helpers for working with Racket",
+  "icon": "readme-assets/icon.png",
   "publisher": "Calvin-LL",
   "version": "1.0.0",
   "license": "AGPL-3.0",
