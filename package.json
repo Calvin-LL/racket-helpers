@@ -18,6 +18,10 @@
   "contributes": {
     "commands": [
       {
+        "command": "racket-helpers.shrinkSelection",
+        "title": "Shrink S-expression Selection"
+      },
+      {
         "command": "racket-helpers.expandSelection",
         "title": "Expand Selection to Parent S-expression"
       },
@@ -27,6 +31,11 @@
       }
     ],
     "keybindings": [
+      {
+        "command": "racket-helpers.shrinkSelection",
+        "key": "ctrl+shift+down",
+        "when": "editorTextFocus && editorLangId == racket"
+      },
       {
         "command": "racket-helpers.expandSelection",
         "key": "ctrl+shift+up",

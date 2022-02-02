@@ -1,36 +1,66 @@
-import { TextEditor } from "vscode";
+import { Position, Selection, TextEditor } from "vscode";
 
-import { expandSelection } from "./expandSelection";
+import { getBracketPair } from "./expandSelection";
 
 export async function hoistExpression(editor: TextEditor): Promise<void> {
-  if (editor.selections.length === 1 && editor.selections[0].isEmpty) {
-    // nothing is selected
-    await expandSelection();
+  // we ignore multiple selections
 
-    const innerExpression = editor.selections[0];
+  const originalSelection = editor.selection;
+  const innerExpression = editor.selection.isEmpty
+    ? getBracketPair(editor.document, editor.selection.active)
+    : originalSelection;
 
-    await expandSelection();
+  if (!innerExpression) return;
 
-    await editor.edit((editBuilder) => {
-      editBuilder.replace(
-        editor.selections[0],
-        editor.document.getText(innerExpression)
-      );
-    });
-  } else {
-    const innerExpressions = editor.selections;
+  const outerExpression = getBracketPair(
+    editor.document,
+    innerExpression.active
+  );
 
-    await expandSelection();
+  if (!outerExpression) return;
 
-    if (innerExpressions.length !== editor.selections.length) return;
+  await editor.edit((editBuilder) => {
+    editBuilder.replace(
+      outerExpression,
+      editor.document.getText(innerExpression)
+    );
+  });
 
-    await editor.edit((editBuilder) => {
-      editor.selections.forEach((selection, index) => {
-        editBuilder.replace(
-          selection,
-          editor.document.getText(innerExpressions[index])
-        );
-      });
-    });
-  }
+  const newSelection = getNewSelection(
+    originalSelection,
+    innerExpression,
+    outerExpression
+  );
+  const selectionsCopy = [...editor.selections];
+
+  selectionsCopy[0] = newSelection;
+
+  editor.selections = selectionsCopy;
+}
+
+/**
+ * We want the selection/cursor to be at the same place relative to the inner expression
+ */
+function getNewSelection(
+  originalSelection: Selection,
+  innerExpression: Selection,
+  outerExpression: Selection
+): Selection {
+  const lineDifference =
+    innerExpression.start.line - outerExpression.start.line;
+  const characterDifference =
+    innerExpression.start.character - outerExpression.start.character;
+
+  const newAnchorPosition = new Position(
+    originalSelection.anchor.line - lineDifference,
+    originalSelection.anchor.character - characterDifference
+  );
+  const newActivePosition = new Position(
+    originalSelection.active.line - lineDifference,
+    originalSelection.anchor.line === originalSelection.active.line
+      ? originalSelection.active.character - characterDifference
+      : originalSelection.active.character
+  );
+
+  return new Selection(newAnchorPosition, newActivePosition);
 }

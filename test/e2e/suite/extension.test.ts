@@ -58,123 +58,157 @@ suite("expandSelection", () => {
     expect(selectedTexts[0]).to.be.equal("(set! r10 fv0)");
   });
 
-  testBothDirections(
-    "Expand from inner selection",
-    new Selection(new Position(7, 27), new Position(7, 30)),
-    async (selection) => {
-      if (!textEditor) fail();
+  test("Expand from inner selection", async () => {
+    if (!textEditor) fail();
 
-      textEditor.selection = selection;
+    textEditor.selection = new Selection(
+      new Position(7, 27),
+      new Position(7, 30)
+    );
 
-      await vscode.commands.executeCommand("racket-helpers.expandSelection");
+    await vscode.commands.executeCommand("racket-helpers.expandSelection");
 
-      const selectedTexts = getSelectedTexts();
+    const selectedTexts = getSelectedTexts();
 
-      expect(selectedTexts).to.have.lengthOf(1);
-      expect(selectedTexts[0]).to.be.equal("(set! r10 fv0)");
-    }
-  );
+    expect(selectedTexts).to.have.lengthOf(1);
+    expect(selectedTexts[0]).to.be.equal("(set! r10 fv0)");
+  });
 
-  testBothDirections(
-    "Expand from open paren selection",
-    new Selection(new Position(7, 21), new Position(7, 22)),
-    async (selection) => {
-      if (!textEditor) fail();
+  test("Expand from before open paren", async () => {
+    if (!textEditor) fail();
 
-      textEditor.selection = selection;
+    textEditor.selection = new Selection(
+      new Position(7, 21),
+      new Position(7, 21)
+    );
 
-      await vscode.commands.executeCommand("racket-helpers.expandSelection");
+    await vscode.commands.executeCommand("racket-helpers.expandSelection");
 
-      const selectedTexts = getSelectedTexts();
+    const selectedTexts = getSelectedTexts();
 
-      expect(selectedTexts).to.have.lengthOf(1);
-      expect(selectedTexts[0]).to.be.equal("(set! r10 fv0)");
-    }
-  );
+    expect(selectedTexts).to.have.lengthOf(1);
+    expect(selectedTexts[0]).to.be.equal(
+      `
+(begin
+                     (set! r10 fv0)
+                     (set! r11 fv1)
+                     (set! r10 (+ r10 r11))
+                     (set! fv0 r10)
+                     (set! rax fv0))`.trimStart()
+    );
+  });
 
-  testBothDirections(
-    "Expand from closing paren selection",
-    new Selection(new Position(7, 34), new Position(7, 35)),
-    async (selection) => {
-      if (!textEditor) fail();
+  test("Expand from after open paren", async () => {
+    if (!textEditor) fail();
 
-      textEditor.selection = selection;
+    textEditor.selection = new Selection(
+      new Position(7, 22),
+      new Position(7, 22)
+    );
 
-      await vscode.commands.executeCommand("racket-helpers.expandSelection");
+    await vscode.commands.executeCommand("racket-helpers.expandSelection");
 
-      const selectedTexts = getSelectedTexts();
+    const selectedTexts = getSelectedTexts();
 
-      expect(selectedTexts).to.have.lengthOf(1);
-      expect(selectedTexts[0]).to.be.equal("(set! r10 fv0)");
-    }
-  );
+    expect(selectedTexts).to.have.lengthOf(1);
+    expect(selectedTexts[0]).to.be.equal("(set! r10 fv0)");
+  });
 
-  testBothDirections(
-    "Expand from s-exp selection",
-    new Selection(new Position(7, 21), new Position(7, 35)),
-    async (selection) => {
-      if (!textEditor) fail();
+  test("Expand from before closing paren", async () => {
+    if (!textEditor) fail();
 
-      textEditor.selection = selection;
+    textEditor.selection = new Selection(
+      new Position(7, 34),
+      new Position(7, 34)
+    );
 
-      await vscode.commands.executeCommand("racket-helpers.expandSelection");
+    await vscode.commands.executeCommand("racket-helpers.expandSelection");
 
-      const selectedTexts = getSelectedTexts();
+    const selectedTexts = getSelectedTexts();
 
-      expect(selectedTexts).to.have.lengthOf(1);
-      expect(selectedTexts[0]).to.be.equal(
-        `
+    expect(selectedTexts).to.have.lengthOf(1);
+    expect(selectedTexts[0]).to.be.equal("(set! r10 fv0)");
+  });
+
+  test("Expand from after closing paren", async () => {
+    if (!textEditor) fail();
+
+    textEditor.selection = new Selection(
+      new Position(7, 35),
+      new Position(7, 35)
+    );
+
+    await vscode.commands.executeCommand("racket-helpers.expandSelection");
+
+    const selectedTexts = getSelectedTexts();
+
+    expect(selectedTexts).to.have.lengthOf(1);
+    expect(selectedTexts[0]).to.be.equal(
+      `
+(begin
+                     (set! r10 fv0)
+                     (set! r11 fv1)
+                     (set! r10 (+ r10 r11))
+                     (set! fv0 r10)
+                     (set! rax fv0))`.trimStart()
+    );
+  });
+
+  test("Expand from s-exp selection", async () => {
+    if (!textEditor) fail();
+
+    textEditor.selection = new Selection(
+      new Position(7, 21),
+      new Position(7, 35)
+    );
+
+    await vscode.commands.executeCommand("racket-helpers.expandSelection");
+
+    const selectedTexts = getSelectedTexts();
+
+    expect(selectedTexts).to.have.lengthOf(1);
+    expect(selectedTexts[0]).to.be.equal(
+      `
     (begin
                      (set! r10 fv0)
                      (set! r11 fv1)
                      (set! r10 (+ r10 r11))
                      (set! fv0 r10)
                      (set! rax fv0))`.trimStart()
-      );
-    }
-  );
+    );
+  });
 
-  testBothDirections(
-    "Expand from multi-line selection",
-    new Selection(new Position(7, 21), new Position(8, 35)),
-    async (selection) => {
-      if (!textEditor) fail();
+  test("Do not expand when everything is forward selected", async () => {
+    if (!textEditor) fail();
 
-      textEditor.selection = selection;
+    textEditor.selection = new Selection(
+      new Position(0, 0),
+      new Position(17, 44)
+    );
 
-      await vscode.commands.executeCommand("racket-helpers.expandSelection");
+    await vscode.commands.executeCommand("racket-helpers.expandSelection");
 
-      const selectedTexts = getSelectedTexts();
+    const selectedTexts = getSelectedTexts();
 
-      expect(selectedTexts).to.have.lengthOf(1);
-      expect(selectedTexts[0]).to.be.equal(
-        `
-    (begin
-                     (set! r10 fv0)
-                     (set! r11 fv1)
-                     (set! r10 (+ r10 r11))
-                     (set! fv0 r10)
-                     (set! rax fv0))`.trimStart()
-      );
-    }
-  );
+    expect(selectedTexts).to.have.lengthOf(1);
+    expect(selectedTexts[0]).to.be.equal(testCode);
+  });
 
-  testBothDirections(
-    "Do not expand when everything is selected",
-    new Selection(new Position(0, 0), new Position(17, 44)),
-    async (selection) => {
-      if (!textEditor) fail();
+  test("Do not expand when everything is backward selected", async () => {
+    if (!textEditor) fail();
 
-      textEditor.selection = selection;
+    textEditor.selection = new Selection(
+      new Position(17, 44),
+      new Position(0, 0)
+    );
 
-      await vscode.commands.executeCommand("racket-helpers.expandSelection");
+    await vscode.commands.executeCommand("racket-helpers.expandSelection");
 
-      const selectedTexts = getSelectedTexts();
+    const selectedTexts = getSelectedTexts();
 
-      expect(selectedTexts).to.have.lengthOf(1);
-      expect(selectedTexts[0]).to.be.equal(testCode);
-    }
-  );
+    expect(selectedTexts).to.have.lengthOf(1);
+    expect(selectedTexts[0]).to.be.equal(testCode);
+  });
 });
 
 suite("hoistExpression", () => {
@@ -208,21 +242,21 @@ suite("hoistExpression", () => {
     );
   });
 
-  testBothDirections(
-    "Hoist inner selection",
-    new Selection(new Position(7, 27), new Position(7, 30)),
-    async (selection) => {
-      if (!textEditor) fail();
+  test("Hoist inner selection", async () => {
+    if (!textEditor) fail();
 
-      textEditor.selection = selection;
+    textEditor.selection = new Selection(
+      new Position(7, 27),
+      new Position(7, 30)
+    );
 
-      const [documentText] = await Promise.all([
-        getDocumentTextOnChange(),
-        vscode.commands.executeCommand("racket-helpers.hoistExpression"),
-      ]);
+    const [documentText] = await Promise.all([
+      getDocumentTextOnChange(),
+      vscode.commands.executeCommand("racket-helpers.hoistExpression"),
+    ]);
 
-      expect(documentText).to.be.equal(
-        `
+    expect(documentText).to.be.equal(
+      `
 (test-suite
   "implement-fvars"
 
@@ -241,25 +275,24 @@ suite("hoistExpression", () => {
                     (set! r10 (+ r10 r11))
                     (set! (rbp - 0) r10)
                     (set! rax (rbp - 0))))))`.trimStart()
-      );
-    }
-  );
+    );
+  });
 
-  testBothDirections(
-    "Hoist s-exp selection",
-    new Selection(new Position(7, 21), new Position(7, 35)),
-    async (selection) => {
-      if (!textEditor) fail();
+  test("Hoist s-exp selection", async () => {
+    if (!textEditor) fail();
 
-      textEditor.selection = selection;
+    textEditor.selection = new Selection(
+      new Position(7, 21),
+      new Position(7, 35)
+    );
 
-      const [documentText] = await Promise.all([
-        getDocumentTextOnChange(),
-        vscode.commands.executeCommand("racket-helpers.hoistExpression"),
-      ]);
+    const [documentText] = await Promise.all([
+      getDocumentTextOnChange(),
+      vscode.commands.executeCommand("racket-helpers.hoistExpression"),
+    ]);
 
-      expect(documentText).to.be.equal(
-        `
+    expect(documentText).to.be.equal(
+      `
 (test-suite
   "implement-fvars"
 
@@ -273,42 +306,43 @@ suite("hoistExpression", () => {
                     (set! r10 (+ r10 r11))
                     (set! (rbp - 0) r10)
                     (set! rax (rbp - 0))))))`.trimStart()
-      );
-    }
-  );
-
-  testBothDirections(
-    "Do not hoist when everything is selected",
-    new Selection(new Position(0, 0), new Position(17, 44)),
-    async (selection) => {
-      if (!textEditor) fail();
-
-      textEditor.selection = selection;
-
-      const [documentText] = await Promise.all([
-        getDocumentTextOnChange(),
-        vscode.commands.executeCommand("racket-helpers.hoistExpression"),
-      ]);
-
-      expect(documentText).to.be.equal(testCode);
-    }
-  );
-});
-
-function testBothDirections(
-  name: string,
-  selection: Selection,
-  func: (selection: Selection) => Promise<void>
-): void {
-  suite(name, () => {
-    test("forward", async () => {
-      await func(new Selection(selection.anchor, selection.active));
-    });
-    test("backward", async () => {
-      await func(new Selection(selection.active, selection.anchor));
-    });
+    );
   });
-}
+
+  test("Do not hoist when everything is forward selected", async () => {
+    if (!textEditor) fail();
+
+    textEditor.selection = new Selection(
+      new Position(0, 0),
+      new Position(17, 44)
+    );
+
+    await vscode.commands.executeCommand("racket-helpers.hoistExpression");
+    // can't listen for document change events cuz nothing should change
+    await delay(100);
+
+    const documentText = getDocumentText();
+
+    expect(documentText).to.be.equal(testCode);
+  });
+
+  test("Do not hoist when everything is backward selected", async () => {
+    if (!textEditor) fail();
+
+    textEditor.selection = new Selection(
+      new Position(0, 0),
+      new Position(17, 44)
+    );
+
+    await vscode.commands.executeCommand("racket-helpers.hoistExpression");
+    // can't listen for document change events cuz nothing should change
+    await delay(100);
+
+    const documentText = getDocumentText();
+
+    expect(documentText).to.be.equal(testCode);
+  });
+});
 
 async function getDocumentTextOnChange(): Promise<string> {
   return await new Promise((resolve) => {
@@ -348,4 +382,8 @@ async function reloadTestCode(): Promise<void> {
     // replace all text with test code
     editBuilder.replace(new Selection(beginPosition, endPosition), testCode);
   });
+}
+
+async function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

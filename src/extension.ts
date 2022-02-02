@@ -1,10 +1,15 @@
 import vscode from "vscode";
 
+import { shrinkSelection } from "./shrinkSelection";
 import { hoistExpression } from "./hoistExpression";
 import { expandSelection } from "./expandSelection";
 
 export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "racket-helpers.shrinkSelection",
+      shrinkSelection
+    ),
     vscode.commands.registerCommand(
       "racket-helpers.expandSelection",
       expandSelection

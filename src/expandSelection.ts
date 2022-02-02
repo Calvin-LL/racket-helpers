@@ -1,104 +1,105 @@
-import vscode, { Position, Selection, TextDocument } from "vscode";
+import vscode, { Position, Range, Selection, TextDocument } from "vscode";
 
-export async function expandSelection(): Promise<void> {
+import { selectionHistory } from "./selectionHistory";
+
+export function expandSelection(): void {
   const textEditor = vscode.window.activeTextEditor;
 
   if (!textEditor) return;
 
-  const beforeSelections = textEditor.selections;
+  const originalSelections = textEditor.selections;
 
-  await vscode.commands.executeCommand("editor.action.selectToBracket");
+  let selectionChanged = false;
 
-  const afterSelections = textEditor.selections;
+  textEditor.selections = textEditor.selections.map((selection) => {
+    const bracketPair = getBracketPair(textEditor.document, selection.active);
 
-  // if some selections consolidated
-  if (beforeSelections.length !== afterSelections.length) return;
+    if (!bracketPair) return selection;
 
-  const failedExpansions = afterSelections.map((selection, index) => {
-    return (
-      selection.isEqual(beforeSelections[index]) ||
-      !selection.contains(beforeSelections[index])
-    );
-  });
-  const someSelectionFailed = failedExpansions.includes(true);
+    selectionChanged = true;
 
-  // if all selections are different
-  if (!someSelectionFailed) return;
-
-  // for the selections that stayed the same,
-  // expand the original selection by 1 character on each end
-  // then call the command again
-  // to select the parent expression
-  textEditor.selections = beforeSelections.map((selection, index) => {
-    if (failedExpansions[index]) {
-      const document = textEditor.document;
-      const expandedSelection = expandSelectionBy1Character(
-        document,
-        selection
-      );
-
-      if (!expandedSelection) return selection;
-
-      return expandedSelection;
-    }
-    return selection;
+    return bracketPair;
   });
 
-  await vscode.commands.executeCommand("editor.action.selectToBracket");
+  if (selectionChanged) {
+    selectionHistory.history.push(originalSelections);
+    selectionHistory.latest = textEditor.selections;
+  }
 }
 
-/**
- * @returns {(Selection | undefined)} a selection that is expanded by 1 character on each end
- */
-function expandSelectionBy1Character(
+const openingBracketMap: Record<string, string> = {
+  "(": ")",
+  "[": "]",
+  "{": "}",
+};
+const closingBracketMap: Record<string, string> = {
+  ")": "(",
+  "]": "[",
+  "}": "{",
+};
+const openingBrackets = ["(", "[", "{"];
+const closingBrackets = [")", "]", "}"];
+
+export function getBracketPair(
   document: TextDocument,
-  selection: Selection
+  position: Position
 ): Selection | undefined {
-  const inOrder = selection.anchor.isBefore(selection.active);
+  const bracketStack: string[] = [];
 
-  const previousCharacter = getPositionPreviousCharacter(
-    document,
-    inOrder ? selection.anchor : selection.active
-  );
-  const nextCharacter = getPositionNextCharacter(
-    document,
-    inOrder ? selection.active : selection.anchor
-  );
+  // find opening bracket
 
-  if (!previousCharacter || !nextCharacter) return undefined;
+  let openingBracketPosition: Position | undefined;
 
-  return new Selection(previousCharacter, nextCharacter);
-}
+  lineLoop: for (let i = position.line; i >= 0; i--) {
+    const startingPosition =
+      i === position.line
+        ? position.character - 1
+        : document.lineAt(i).text.length;
 
-function getPositionPreviousCharacter(
-  document: TextDocument,
-  position: Position
-): Position | undefined {
-  if (position.character > 0) {
-    return new Position(position.line, position.character - 1);
+    for (let j = startingPosition; j >= 0; j--) {
+      const character = document.getText(new Range(i, j, i, j + 1));
+
+      if (closingBrackets.includes(character)) {
+        bracketStack.push(character);
+      } else if (openingBrackets.includes(character)) {
+        const topBracket = bracketStack[bracketStack.length - 1];
+
+        if (topBracket && closingBracketMap[topBracket] === character) {
+          bracketStack.pop();
+        } else {
+          openingBracketPosition = new Position(i, j);
+          break lineLoop;
+        }
+      }
+    }
   }
 
-  if (position.line > 0) {
-    return new Position(
-      position.line - 1,
-      document.lineAt(position.line - 1).text.length
-    );
+  // find closing bracket
+
+  let closingBracketPosition: Position | undefined;
+
+  lineLoop: for (let i = position.line; i < document.lineCount; i++) {
+    const startingPosition = i === position.line ? position.character : 0;
+
+    for (let j = startingPosition; j < document.lineAt(i).text.length; j++) {
+      const character = document.getText(new Range(i, j, i, j + 1));
+
+      if (openingBrackets.includes(character)) {
+        bracketStack.push(character);
+      } else if (closingBrackets.includes(character)) {
+        const topBracket = bracketStack[bracketStack.length - 1];
+
+        if (topBracket && openingBracketMap[topBracket] === character) {
+          bracketStack.pop();
+        } else {
+          closingBracketPosition = new Position(i, j + 1);
+          break lineLoop;
+        }
+      }
+    }
   }
 
-  return undefined;
-}
+  if (!openingBracketPosition || !closingBracketPosition) return undefined;
 
-function getPositionNextCharacter(
-  document: TextDocument,
-  position: Position
-): Position | undefined {
-  if (position.character < document.lineAt(position.line).text.length) {
-    return new Position(position.line, position.character + 1);
-  }
-
-  if (position.line < document.lineCount - 1) {
-    return new Position(position.line + 1, 0);
-  }
-
-  return undefined;
+  return new Selection(openingBracketPosition, closingBracketPosition);
 }
