@@ -24,6 +24,18 @@
         "command": "racket-helpers.hoistExpression",
         "title": "Hoist S-expression"
       }
+    ],
+    "keybindings": [
+      {
+        "command": "racket-helpers.expandSelection",
+        "key": "ctrl+shift+up",
+        "when": "editorTextFocus && editorLangId == racket"
+      },
+      {
+        "command": "racket-helpers.hoistExpression",
+        "key": "ctrl+shift+h",
+        "when": "editorTextFocus && !editorReadonly && editorLangId == racket"
+      }
     ]
   },
   "scripts": {
