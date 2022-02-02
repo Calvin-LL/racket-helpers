@@ -20,4 +20,8 @@ keybinding: `ctrl+shift+↓`
 
 ### Hoist S-expression
 
+command: `racket-helpers.hoistExpression`
+
+keybinding: `ctrl+shift+h`
+
 ![a gif showing a S-expression being hoisted](./readme-assets/hoist.gif)
