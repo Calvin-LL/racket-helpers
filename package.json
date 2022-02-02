@@ -1,13 +1,25 @@
 {
   "name": "racket-helpers",
   "displayName": "Racket Helpers",
-  "description": "",
+  "description": "Some helpers for working with Racket",
   "version": "1.0.0",
+  "license": "AGPL-3.0",
   "engines": {
     "vscode": "^1.63.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Calvin-LL/racket-helpers.git"
+  },
   "categories": [
     "Other"
+  ],
+  "keywords": [
+    "Racket",
+    "Scheme",
+    "DrRacket",
+    "parentheses",
+    "paren"
   ],
   "activationEvents": [
     "onCommand:racket-helpers.expandSelection",
