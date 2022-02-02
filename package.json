@@ -13,7 +13,8 @@
     "onCommand:racket-helpers.expandSelection",
     "onCommand:racket-helpers.hoistExpression"
   ],
-  "main": "./out/src/extension.js",
+  "main": "./dist/extension.js",
+  "browser": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
@@ -39,11 +40,12 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "build": "rm -rf ./out && tsc",
+    "vscode:prepublish": "npm run build",
+    "build": "rm -rf ./dist && tsc --noEmit && esbuild ./src/extension.js --bundle --minify --sourcemap --external:vscode --platform=node --outfile=./dist/extension.js",
+    "build:test": "npm run build && tsc --project ./test/e2e/tsconfig.json --outDir ./dist/test/e2e",
     "lint": "eslint --ext .ts .",
     "lint:markdown": "remark .",
-    "test": "npm run build && node ./out/test/e2e/runTest.js"
+    "test": "npm run build:test && node ./dist/test/e2e/runTest.js"
   },
   "devDependencies": {
     "@commitlint/cli": "^16.1.0",
@@ -57,6 +59,7 @@
     "@typescript-eslint/parser": "^5.9.1",
     "@vscode/test-electron": "^2.0.3",
     "chai": "^4.3.6",
+    "esbuild": "^0.14.16",
     "eslint": "^8.6.0",
     "eslint-plugin-import": "^2.25.4",
     "glob": "^7.2.0",

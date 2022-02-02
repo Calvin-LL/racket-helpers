@@ -14,7 +14,7 @@
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionDevelopmentKind=web"
       ],
-      "outFiles": ["${workspaceFolder}/out/src/**/*.js"],
+      "outFiles": ["${workspaceFolder}/dist/src/**/*.js"],
       "preLaunchTask": "${defaultBuildTask}"
     },
     {
@@ -22,7 +22,7 @@
       "type": "extensionHost",
       "request": "launch",
       "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
-      "outFiles": ["${workspaceFolder}/out/src/**/*.js"],
+      "outFiles": ["${workspaceFolder}/dist/src/**/*.js"],
       "preLaunchTask": "${defaultBuildTask}"
     },
     {
@@ -31,9 +31,9 @@
       "request": "launch",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
+        "--extensionTestsPath=${workspaceFolder}/dist/test/e2e/suite/index"
       ],
-      "outFiles": ["${workspaceFolder}/out/test/**/*.js"],
+      "outFiles": ["${workspaceFolder}/dist/test/**/*.js"],
       "preLaunchTask": "${defaultBuildTask}"
     }
   ]
