@@ -3,6 +3,7 @@ import vscode from "vscode";
 import { shrinkSelection } from "./shrinkSelection";
 import { hoistExpression } from "./hoistExpression";
 import { expandSelection } from "./expandSelection";
+import { detectDoubleClick } from "./detectDoubleClick";
 
 export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
@@ -17,7 +18,8 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerTextEditorCommand(
       "racket-helpers.hoistExpression",
       hoistExpression
-    )
+    ),
+    vscode.window.onDidChangeTextEditorSelection(detectDoubleClick)
   );
 }
 

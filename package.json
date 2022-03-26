@@ -24,12 +24,34 @@
     "paren"
   ],
   "activationEvents": [
-    "onCommand:racket-helpers.expandSelection",
-    "onCommand:racket-helpers.hoistExpression"
+    "*"
   ],
   "main": "./dist/extension.js",
   "browser": "./dist/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "Racket Helpers",
+      "properties": {
+        "racket-helpers.enableDoubleClick": {
+          "order": 0,
+          "type": "boolean",
+          "default": true,
+          "description": "Enable double click to select S-expression"
+        },
+        "racket-helpers.clicksInterval": {
+          "order": 1,
+          "type": "number",
+          "default": 600,
+          "description": "The interval between clicks in milliseconds."
+        },
+        "racket-helpers.triggerDelay": {
+          "order": 2,
+          "type": "number",
+          "default": 150,
+          "description": "The delay after triggering the selection. To prevent conflicting with normal selection."
+        }
+      }
+    },
     "commands": [
       {
         "command": "racket-helpers.shrinkSelection",

@@ -2,6 +2,10 @@
 
 ## Features
 
+### Double Click to Select S-expression
+
+![a gif showing a S-expression being hoisted](./readme-assets/double-click.gif)
+
 ### Hoist S-expression
 
 command: `racket-helpers.hoistExpression`
@@ -25,3 +29,7 @@ command: `racket-helpers.shrinkSelection`
 keybinding: `ctrl+shift+↓`
 
 ![a gif showing a selection shrinking](./readme-assets/shrink.gif)
+
+### Credits
+
+Double click feature inspired by [vscode-smart-clicks](https://github.com/antfu/vscode-smart-clicks)

@@ -1,6 +1,12 @@
 import vscode, { Position, Range, Selection, TextDocument } from "vscode";
 
 import { selectionHistory } from "./selectionHistory";
+import {
+  closingBracketMap,
+  closingBrackets,
+  openingBracketMap,
+  openingBrackets,
+} from "./brackets";
 
 export function expandSelection(): void {
   const textEditor = vscode.window.activeTextEditor;
@@ -26,19 +32,6 @@ export function expandSelection(): void {
     selectionHistory.latest = textEditor.selections;
   }
 }
-
-const openingBracketMap: Record<string, string> = {
-  "(": ")",
-  "[": "]",
-  "{": "}",
-};
-const closingBracketMap: Record<string, string> = {
-  ")": "(",
-  "]": "[",
-  "}": "{",
-};
-const openingBrackets = ["(", "[", "{"];
-const closingBrackets = [")", "]", "}"];
 
 export function getBracketPair(
   document: TextDocument,
