@@ -85,6 +85,7 @@
     ]
   },
   "scripts": {
+    "release": "standard-version",
     "vscode:publish": "vsce package && vsce publish",
     "vscode:prepublish": "npm run build",
     "build": "rm -rf ./dist && tsc --noEmit && esbuild ./src/extension.js --bundle --minify --sourcemap --external:vscode --platform=node --outfile=./dist/extension.js",
